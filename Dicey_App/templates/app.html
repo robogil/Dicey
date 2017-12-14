@@ -1,0 +1,13 @@
+<body>
+  <h1>
+    Welcome to Dicey
+  </h1>
+  <h4>
+    Please enter a game into the field to get some recommendations!
+  </h4><br><br>
+  <form action = "{% url 'recommend' %}">
+    Game<br><input type="text" name = "user_input"/><br>
+    Number of recommendations<br><input type="text" name = "number"/><br>
+    <input type="submit" value = "Send"/>
+  </form>
+</body>

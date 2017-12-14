@@ -1,40 +1,45 @@
-from django.db import models
-
+from django.shortcuts import render
+from django.http import HttpResponse
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import requests
 import pickle
 
-# Set up dataset
-bgg = pd.read_csv("./data/Cleaned_BGG")
-bgg.drop('Unnamed: 0',axis = 1, inplace = True)
-bgg.drop_duplicates(subset= 'names', inplace= True)
-bgg['names'].value_counts().head()
+def home(request):
+    return render(request, 'app.html')
+def recommend(request):
+    ui = request.GET['user_input']
+    num = request.GET['number']
+    num = int(num)
+    # Set up dataset
+    bgg = pd.read_csv("./data/Cleaned_BGG")
+    bgg.drop('Unnamed: 0',axis = 1, inplace = True)
+    bgg.drop_duplicates(subset= 'names', inplace= True)
+    bgg['names'].value_counts().head()
 
-# Load user choices
-user_choices= pickle.load(open("./data/gamelist.p", "rb"))
-user_names= pickle.load(open("./data/usernames.p", "rb"))
-testlist = []
-for name in user_choices.keys():
-    for game in user_choices[name]:
-        testlist.append(name+'~'+game)
-df_user= []
-df_game = []
-for _ in testlist:
-    user, game= _.split('~')
-    df_user.append(user)
-    df_game.append(game)
+    # Load user choices
+    user_choices= pickle.load(open("./data/gamelist.p", "rb"))
+    user_names= pickle.load(open("./data/usernames.p", "rb"))
+    testlist = []
+    for name in user_choices.keys():
+        for game in user_choices[name]:
+            testlist.append(name+'~'+game)
+    df_user= []
+    df_game = []
+    for _ in testlist:
+        user, game= _.split('~')
+        df_user.append(user)
+        df_game.append(game)
 
-# Create User listing
-rec_user = pd.DataFrame({'User':df_user, 'Game': df_game})
-rec_user = rec_user.reindex(columns = ['User','Game'])
-rec_user.head()
+    # Create User listing
+    rec_user = pd.DataFrame({'User':df_user, 'Game': df_game})
+    rec_user = rec_user.reindex(columns = ['User','Game'])
+    rec_user.head()
 
-#Combine user data with games from main bgg dataframe
-comp = pd.merge(rec_user, bgg, how= 'inner', left_on= 'Game', right_on='names')
+    #Combine user data with games from main bgg dataframe
+    comp = pd.merge(rec_user, bgg, how= 'inner', left_on= 'Game', right_on='names')
 
-def rec(ui, num):
     # Set up df index
     alg_rec = pd.DataFrame([])
     alg_rec['name'] = bgg['names']
@@ -83,9 +88,12 @@ def rec(ui, num):
     alg_rec['mech_scores'] = mech_scores
 
     # The Great Decider
-    alg_rec['mech_scores'] = alg_rec['mech_scores'] * 2.0
-    alg_rec['cat_scores'] = alg_rec['cat_scores'] * 1.5
+    alg_rec['mech_scores'] = alg_rec['mech_scores'] * 1.25
+    alg_rec['cat_scores'] = alg_rec['cat_scores'] * 2.0
     alg_rec['total'] = alg_rec ['user_score'] + alg_rec['cat_scores'] + alg_rec['mech_scores']
-    rec = alg_rec.sort_values('total', ascending= False).head(num)
-    for _ in rec.index[1:num]:
-        print(_)
+    rec = alg_rec.sort_values('total', ascending= False)
+    rec = list(rec.index)
+    output =''
+    for _ in rec[1:num]:
+        output = output + ' '+ _ + ','
+    return HttpResponse(output)
