@@ -88,8 +88,8 @@ def recommend(request):
     alg_rec['mech_scores'] = mech_scores
 
     # The Great Decider
-    alg_rec['mech_scores'] = alg_rec['mech_scores'] * 1.25
-    alg_rec['cat_scores'] = alg_rec['cat_scores'] * 2.0
+    alg_rec['mech_scores'] = alg_rec['mech_scores'] * 2.0
+    alg_rec['cat_scores'] = alg_rec['cat_scores'] * 1.5
     alg_rec['total'] = alg_rec ['user_score'] + alg_rec['cat_scores'] + alg_rec['mech_scores']
     rec = alg_rec.sort_values('total', ascending= False)
     rec = list(rec.index)

@@ -1,13 +1,23 @@
+<head>
+<link href="https://fonts.googleapis.com/css?family=Acme" rel="stylesheet">
+<style>
+      body {font-family: 'Acme', serif;font-size: 24px;}
+
+</style>
+</head>
 <body>
-  <h1>
+  <h1 style="text-align:center;">
     Welcome to Dicey
   </h1>
-  <h4>
+  <h5 style="text-align:center;">
     Please enter a game into the field to get some recommendations!
-  </h4><br><br>
-  <form action = "{% url 'recommend' %}">
+  </h5><br>
+{% load static %}
+  <img src="{% static "dicey.png" %}" alt="Dicey"/>
+  <br>
+  <form action = "{% url 'recommend' %}" style="text-align:center;">
     Game<br><input type="text" name = "user_input"/><br>
     Number of recommendations<br><input type="text" name = "number"/><br>
-    <input type="submit" value = "Send"/>
+    <input type="submit" value = "Send" style="text-align:center;"/>
   </form>
 </body>
